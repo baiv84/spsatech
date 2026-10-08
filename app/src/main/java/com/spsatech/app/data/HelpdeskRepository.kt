@@ -1,12 +1,12 @@
 package com.spsatech.app.data
 
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.IOException
-import kotlinx.coroutines.withTimeoutOrNull
 
 /** Ошибка с текстом, который можно показать пользователю. */
 class ApiException(message: String) : Exception(message)

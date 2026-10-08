@@ -5,19 +5,16 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
-import com.spsatech.app.push.Notifications
-import com.spsatech.app.update.UpdateGate
-import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.spsatech.app.data.SessionState
 import com.spsatech.app.data.User
+import com.spsatech.app.push.Notifications
 import com.spsatech.app.ui.common.FullScreenLoading
 import com.spsatech.app.ui.login.LoginScreen
 import com.spsatech.app.ui.newticket.NewTicketScreen
@@ -32,6 +30,8 @@ import com.spsatech.app.ui.password.ChangePasswordScreen
 import com.spsatech.app.ui.theme.SpsatechTheme
 import com.spsatech.app.ui.ticket.TicketDetailScreen
 import com.spsatech.app.ui.tickets.TicketListScreen
+import com.spsatech.app.update.UpdateGate
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {

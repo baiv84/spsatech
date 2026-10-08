@@ -1,6 +1,7 @@
 package com.spsatech.app.push
 
 import android.util.Log
+import com.google.android.gms.tasks.Task
 import com.google.firebase.messaging.FirebaseMessaging
 import com.spsatech.app.data.HelpdeskRepository
 import com.spsatech.app.data.SessionState
@@ -10,7 +11,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import com.google.android.gms.tasks.Task
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
