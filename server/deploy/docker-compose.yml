@@ -1,0 +1,53 @@
+# Продакшен: /opt/helpdesk на сервере. Секреты — в .env рядом (см. .env.example).
+name: helpdesk
+
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: helpdesk
+      POSTGRES_USER: helpdesk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    networks:
+      default:
+        # Уникальное имя: в сети effcon короткое «db» — это их база.
+        aliases: [helpdesk-db]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U helpdesk -d helpdesk"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: ./src
+    image: helpdesk-app:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://helpdesk:${POSTGRES_PASSWORD}@helpdesk-db:5432/helpdesk?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:?}
+      TOKEN_TTL: 720h
+      TZ: ${TZ:-Asia/Novosibirsk}
+      # Синхронизация пользователей из «Оценки эффективности» (роль только на чтение).
+      EFFCON_DATABASE_URL: postgres://helpdesk_sync:${EFFCON_SYNC_PASSWORD}@effcon-db-1:5432/effcon?sslmode=disable
+      # Ключ сервисного аккаунта Firebase для push-уведомлений.
+      FCM_CREDENTIALS_FILE: /run/secrets/fcm.json
+      # APK и meta.json для страницы /app (публикуются deploy/publish-apk.sh).
+      APK_DIR: /data/apk
+    volumes:
+      - ./uploads:/data/uploads
+      - ./apk:/data/apk:ro
+      - ./secrets/fcm.json:/run/secrets/fcm.json:ro
+    ports:
+      - "127.0.0.1:8090:8091"
+    networks: [default, effcon]
+
+networks:
+  effcon:
+    external: true
+    name: effcon_default

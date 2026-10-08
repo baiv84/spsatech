@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Техподдержка — приложение для Android</title>
+<style>
+  :root { --bg:#f6f6f7; --surface:#fff; --text:#1c1b1f; --muted:#6b6970; --border:#e3e1e6; --accent:#b3261e; --on-accent:#fff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#141316; --surface:#1d1c20; --text:#e7e1e5; --muted:#a09ca4; --border:#322f35; --accent:#ffb4ab; --on-accent:#690005; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+    font:16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+  main { max-width:560px; margin:0 auto; padding:32px 16px 48px; }
+  .head { display:flex; align-items:center; gap:16px; margin-bottom:24px; }
+  .logo { width:64px; height:64px; border-radius:16px; background:#b3261e; display:grid; place-items:center; flex:none; }
+  h1 { font-size:24px; margin:0; line-height:1.2; }
+  .sub { color:var(--muted); margin:4px 0 0; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:16px; }
+  .btn { display:block; text-align:center; background:var(--accent); color:var(--on-accent); text-decoration:none;
+    font-weight:600; font-size:17px; padding:15px; border-radius:12px; }
+  .meta { color:var(--muted); font-size:14px; text-align:center; margin:10px 0 0; }
+  h2 { font-size:17px; margin:0 0 10px; }
+  ol { margin:0; padding-left:22px; }
+  li { margin:6px 0; }
+  .qr { display:flex; gap:16px; align-items:center; }
+  .qr img { width:132px; height:132px; border-radius:8px; background:#fff; padding:6px; flex:none; image-rendering:pixelated; }
+  .muted { color:var(--muted); font-size:14px; }
+  .empty { text-align:center; color:var(--muted); }
+  @media (max-width:420px) { .qr { flex-direction:column; text-align:center; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="head">
+    <div class="logo" aria-hidden="true">
+      <svg width="38" height="38" viewBox="0 0 24 24"><path fill="#fff" d="M12,1C7,1 3,5 3,10v7c0,1.66 1.34,3 3,3h3v-8H5v-2c0,-3.87 3.13,-7 7,-7s7,3.13 7,7v2h-4v8h4v1h-7v2h6c1.66,0 3,-1.34 3,-3V10C21,5 17,1 12,1z"/></svg>
+    </div>
+    <div>
+      <h1>Техподдержка</h1>
+      <p class="sub">Заявки о неполадках с компьютерами — с фото и ответами специалистов</p>
+    </div>
+  </div>
+
+  {{with .Meta}}
+  <div class="card">
+    <a class="btn" href="/app/helpdesk.apk">Скачать для Android</a>
+    <p class="meta">Версия {{.VersionName}} · {{mb .SizeBytes}} · от {{date .PublishedAt}} · Android 8.0 и новее</p>
+  </div>
+  {{else}}
+  <div class="card empty">Приложение скоро появится здесь.</div>
+  {{end}}
+
+  <div class="card">
+    <h2>Как установить</h2>
+    <ol>
+      <li>Нажмите «Скачать» и откройте загруженный файл.</li>
+      <li>Если телефон попросит — разрешите установку приложений из этого источника (браузера или «Файлов»).</li>
+      <li>Если появится предупреждение Play Защиты — нажмите «Подробнее» → «Всё равно установить». Приложение распространяется не через Google Play, поэтому телефон его «не знает».</li>
+      <li>Откройте «Техподдержку» и войдите с логином и паролем от системы «Оценка эффективности» — или выданными техподдержкой.</li>
+      <li>Разрешите уведомления — так вы узнаете об ответе сразу.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Обновление</h2>
+    <p class="muted" style="margin:0">Когда выйдет новая версия, скачайте её здесь же и установите поверх — заявки и вход сохранятся.</p>
+  </div>
+
+  <div class="card qr">
+    <img src="/app/qr.png" alt="QR-код со ссылкой на эту страницу">
+    <div>
+      <h2>Открыть на телефоне</h2>
+      <p class="muted" style="margin:0">Наведите камеру телефона на код или откройте ссылку:<br><b>{{.URL}}</b></p>
+    </div>
+  </div>
+</main>
+</body>
+</html>

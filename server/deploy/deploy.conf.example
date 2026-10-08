@@ -1,0 +1,9 @@
+# Скопируйте в deploy.conf (не попадает в git) и укажите свой сервер.
+SSH_HOST=example.com
+SSH_PORT=22
+SSH_USER=root
+SSH_KEY=$HOME/.ssh/id_ed25519
+# Публичный адрес сервиса (без / в конце).
+PUBLIC_URL=https://helpdesk.example.com
+# Папка проекта на сервере.
+REMOTE_DIR=/opt/helpdesk

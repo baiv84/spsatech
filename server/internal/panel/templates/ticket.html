@@ -1,0 +1,96 @@
+{{define "content"}}
+{{$d := .Data}}{{$t := $d.Ticket}}{{$csrf := .CSRF}}{{$me := .User}}
+<a href="/panel/tickets" class="back">← Все заявки</a>
+<div class="ticket-grid">
+  <section>
+    <div class="card">
+      <div class="ticket-head">
+        <span class="muted">Заявка №{{$t.ID}} · {{fmtTime $t.CreatedAt}}</span>
+        <span class="status s-{{$t.Status}}">{{statusLabel $t.Status}}</span>
+      </div>
+      <h1 class="ticket-title">{{$t.Title}}</h1>
+      {{if or $t.Location $t.Department}}<p class="muted">{{if $t.Department}}🏢 {{$t.Department}}{{end}}{{if and $t.Location $t.Department}} · {{end}}{{if $t.Location}}📍 {{$t.Location}}{{end}}</p>{{end}}
+      <p class="prewrap">{{$t.Description}}</p>
+      {{if $t.Attachments}}
+      <div class="photos">
+        {{range $t.Attachments}}<a href="/panel/attachments/{{.ID}}" class="photo" data-lightbox><img src="/panel/attachments/{{.ID}}" alt="{{.FileName}}" loading="lazy"></a>{{end}}
+      </div>
+      {{end}}
+    </div>
+
+    <h2>Переписка</h2>
+    {{if not $t.Messages}}<p class="muted">Сообщений пока нет.</p>{{end}}
+    <div class="thread">
+      {{range $t.Messages}}
+      <div class="msg{{if eq .Author.ID $t.Author.ID}} from-author{{else}} from-staff{{end}}">
+        <div class="msg-head"><b>{{.Author.FullName}}</b> <span class="muted small">{{fmtTime .CreatedAt}}</span></div>
+        {{if .Body}}<div class="prewrap">{{.Body}}</div>{{end}}
+        {{if .Attachments}}<div class="photos">
+          {{range .Attachments}}<a href="/panel/attachments/{{.ID}}" class="photo small" data-lightbox><img src="/panel/attachments/{{.ID}}" alt="{{.FileName}}" loading="lazy"></a>{{end}}
+        </div>{{end}}
+      </div>
+      {{end}}
+    </div>
+
+    <form method="post" action="/panel/tickets/{{$t.ID}}/reply?_csrf={{$csrf}}" enctype="multipart/form-data" class="card reply" data-submit-shortcut>
+      <label>Ответ сотруднику
+        <textarea name="body" rows="4" maxlength="5000" placeholder="Текст ответа (Ctrl+Enter — отправить)">{{$d.Reply}}</textarea>
+      </label>
+      <div class="reply-row">
+        <label class="file">📎 Фото <input type="file" name="photos" accept="image/jpeg,image/png,image/webp" multiple data-photo-count></label>
+        <span class="muted small" data-photo-label>до 5 фото</span>
+        <span class="spacer"></span>
+        <label class="inline-label">Статус после ответа
+          <select name="status">
+            <option value="">не менять</option>
+            {{range statuses}}<option value="{{.}}">{{statusLabel .}}</option>{{end}}
+          </select>
+        </label>
+        <button class="btn primary">Отправить</button>
+      </div>
+    </form>
+  </section>
+
+  <aside>
+    <div class="card side">
+      <h3>Статус</h3>
+      <form method="post" action="/panel/tickets/{{$t.ID}}/status" class="row">
+        <input type="hidden" name="_csrf" value="{{$csrf}}">
+        <select name="status">
+          {{range statuses}}<option value="{{.}}"{{if eq . $t.Status}} selected{{end}}>{{statusLabel .}}</option>{{end}}
+        </select>
+        <button class="btn">Сменить</button>
+      </form>
+
+      <h3>Исполнитель</h3>
+      <form method="post" action="/panel/tickets/{{$t.ID}}/assign" class="row">
+        <input type="hidden" name="_csrf" value="{{$csrf}}">
+        <select name="assignee">
+          <option value="">— не назначен —</option>
+          {{range $d.Staff}}<option value="{{.ID}}"{{if and $t.Assignee (eq .ID $t.Assignee.ID)}} selected{{end}}>{{.FullName}}</option>{{end}}
+        </select>
+        <button class="btn">Назначить</button>
+      </form>
+      {{if or (not $t.Assignee) (ne $t.Assignee.ID $me.ID)}}
+      <form method="post" action="/panel/tickets/{{$t.ID}}/assign">
+        <input type="hidden" name="_csrf" value="{{$csrf}}">
+        <input type="hidden" name="assignee" value="{{$me.ID}}">
+        <button class="btn-link">Взять себе</button>
+      </form>
+      {{end}}
+
+      <h3>Автор</h3>
+      <p><b>{{$d.Author.FullName}}</b><br>
+        {{if $d.Author.Department}}<span class="muted">{{$d.Author.Department}}</span><br>{{end}}
+        {{if $d.Author.Phone}}<a href="tel:{{$d.Author.Phone}}">{{$d.Author.Phone}}</a><br>{{end}}
+        <span class="muted small">логин: {{$d.Author.Login}}</span></p>
+      {{if $d.Author.Position}}<p class="muted small">{{$d.Author.Position}}</p>{{end}}
+
+      <h3>История</h3>
+      <ul class="history">
+        {{range $d.Events}}<li><span class="muted">{{fmtTime .CreatedAt}}</span><br>{{event .}}{{if and .Actor (ne .Type "created")}} <span class="muted">— {{.Actor}}</span>{{end}}</li>{{end}}
+      </ul>
+    </div>
+  </aside>
+</div>
+{{end}}

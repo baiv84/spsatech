@@ -1,0 +1,43 @@
+{{define "content"}}
+{{$f := .Data}}
+<a href="/panel/users" class="back">← Все сотрудники</a>
+<form method="post" action="{{if $f.IsNew}}/panel/users/new{{else}}/panel/users/{{$f.ID}}{{end}}" class="card narrow">
+  <h1>{{if $f.IsNew}}Новый пользователь{{else}}{{$f.FullName}}{{end}}</h1>
+  {{if and (not $f.IsNew) (not $f.CanEdit)}}<p class="alert info">Учётные записи техподдержки может менять только администратор.</p>{{end}}
+  {{if $f.External}}<p class="alert info">Сотрудник из «Оценки эффективности НПР»: ФИО, должность, подразделение, пароль и активность
+    обновляются оттуда автоматически. Здесь можно изменить телефон{{if $f.CanRole}} и роль{{end}}.</p>{{end}}
+  <input type="hidden" name="_csrf" value="{{.CSRF}}">
+  <fieldset {{if not $f.CanEdit}}disabled{{end}}>
+  <label>Логин
+    {{if $f.IsNew}}<input name="login" value="{{$f.Login}}" required pattern="[A-Za-z0-9._\-]{3,64}" autocomplete="off" placeholder="например, ivanov.ii">
+    <span class="hint">Латинские буквы, цифры, точка, дефис. Сотрудник будет вводить его в приложении.</span>
+    {{else}}<input value="{{$f.Login}}" disabled>{{end}}
+  </label>
+  <label>ФИО<input name="full_name" value="{{$f.FullName}}" required maxlength="200"{{if $f.External}} disabled{{end}}></label>
+  <label>Должность<input name="position" value="{{$f.Position}}" maxlength="200"{{if $f.External}} disabled{{end}}></label>
+  <label>Подразделение<input name="department" value="{{$f.Department}}" maxlength="200" placeholder="кафедра, отдел"{{if $f.External}} disabled{{end}}></label>
+  <label>Телефон<input name="phone" value="{{$f.Phone}}" maxlength="50" type="tel"></label>
+  <label>Роль
+    <select name="role" {{if not $f.CanRole}}disabled{{end}}>
+      {{range $f.Roles}}<option value="{{.}}"{{if eq . $f.Role}} selected{{end}}>{{roleLabel .}}</option>{{end}}
+    </select>
+    {{if not $f.CanRole}}<span class="hint">{{if $f.IsSelf}}Свою роль изменить нельзя.{{else}}Роль меняет только администратор.{{end}}</span>{{end}}
+  </label>
+  {{if not $f.IsNew}}
+  <label class="check"><input type="checkbox" name="is_active"{{if $f.IsActive}} checked{{end}}{{if or $f.IsSelf $f.External}} disabled{{end}}> Активен (может входить)</label>
+  {{end}}
+  </fieldset>
+  {{if $f.IsNew}}<p class="muted small">Временный пароль будет создан автоматически и показан после сохранения. При первом входе сотрудник сменит его на свой.</p>{{end}}
+  {{if $f.CanEdit}}<button class="btn primary">{{if $f.IsNew}}Создать{{else}}Сохранить{{end}}</button>{{end}}
+</form>
+
+{{if and (not $f.IsNew) $f.CanEdit (not $f.IsSelf) (not $f.External)}}
+<form method="post" action="/panel/users/{{$f.ID}}/reset-password" class="card narrow danger-zone"
+      data-confirm="Сбросить пароль? Сотрудник выйдет со всех устройств и должен будет войти с новым временным паролем.">
+  <input type="hidden" name="_csrf" value="{{.CSRF}}">
+  <h3>Сброс пароля</h3>
+  <p class="muted small">Если сотрудник забыл пароль. Будет создан новый временный пароль.</p>
+  <button class="btn">Сбросить пароль</button>
+</form>
+{{end}}
+{{end}}

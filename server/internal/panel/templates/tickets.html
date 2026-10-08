@@ -1,0 +1,47 @@
+{{define "content"}}
+{{$d := .Data}}
+<div class="page-head">
+  <h1>Заявки</h1>
+  <form method="get" action="/panel/tickets" class="search">
+    <input type="hidden" name="status" value="{{$d.Filter}}">
+    {{if $d.Mine}}<input type="hidden" name="mine" value="1">{{end}}
+    <input type="search" name="q" value="{{$d.Query}}" placeholder="Поиск: №, тема, автор, место">
+    <button class="btn">Найти</button>
+  </form>
+</div>
+
+<div class="filters" data-autorefresh="60">
+  <a href="?status=open{{if $d.Mine}}&mine=1{{end}}" class="chip{{if eq $d.Filter "open"}} active{{end}}">Открытые <b>{{$d.Open}}</b></a>
+  {{range statuses}}
+  <a href="?status={{.}}{{if $d.Mine}}&mine=1{{end}}" class="chip{{if eq $d.Filter (print .)}} active{{end}}">{{statusLabel .}} <b>{{index $d.Counts .}}</b></a>
+  {{end}}
+  <a href="?status=all{{if $d.Mine}}&mine=1{{end}}" class="chip{{if eq $d.Filter "all"}} active{{end}}">Все</a>
+  <span class="spacer"></span>
+  {{if $d.Mine}}
+  <a href="?status={{$d.Filter}}" class="chip active">Только мои ✕</a>
+  {{else}}
+  <a href="?status={{$d.Filter}}&mine=1" class="chip">Только мои</a>
+  {{end}}
+</div>
+
+{{if $d.Tickets}}
+<table class="list">
+  <thead><tr><th>№</th><th>Тема</th><th>Автор, подразделение</th><th>Статус</th><th>Исполнитель</th><th>Обновлена</th></tr></thead>
+  <tbody>
+  {{range $d.Tickets}}
+  <tr class="rowlink" data-href="/panel/tickets/{{.ID}}">
+    <td class="num">{{.ID}}</td>
+    <td><a href="/panel/tickets/{{.ID}}" class="title">{{.Title}}</a>
+      {{if .Location}}<div class="muted small">📍 {{.Location}}</div>{{end}}</td>
+    <td>{{.Author.FullName}}{{if .Department}}<div class="muted small">{{.Department}}</div>{{end}}</td>
+    <td><span class="status s-{{.Status}}">{{statusLabel .Status}}</span></td>
+    <td>{{with .Assignee}}{{.FullName}}{{else}}<span class="muted">—</span>{{end}}</td>
+    <td class="nowrap">{{fmtTime .UpdatedAt}}{{if .MessageCount}}<div class="muted small">💬 {{.MessageCount}}</div>{{end}}</td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}
+<div class="empty">Заявок не найдено</div>
+{{end}}
+{{end}}

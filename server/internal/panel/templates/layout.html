@@ -1,0 +1,37 @@
+{{define "layout"}}<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} · Техподдержка</title>
+<link rel="stylesheet" href="{{asset "panel.css"}}">
+<script src="{{asset "panel.js"}}" defer></script>
+</head>
+<body>
+{{if .User}}
+<header class="topbar">
+  <a class="brand" href="/panel/tickets"><span class="brand-mark">⛑</span><span class="brand-text">Техподдержка</span></a>
+  <nav class="nav">
+    <a href="/panel/tickets"{{if eq .Nav "tickets"}} class="active"{{end}}>Заявки</a>
+    <a href="/panel/users"{{if eq .Nav "users"}} class="active"{{end}}>Сотрудники</a>
+    <a href="/panel/reports"{{if eq .Nav "reports"}} class="active"{{end}}>Отчёты</a>
+    <a href="/app" target="_blank" rel="noopener" title="Страница скачивания Android-приложения с QR-кодом">Приложение ↗</a>
+  </nav>
+  <div class="me">
+    <span class="me-name">{{.User.FullName}}</span>
+    <a href="/panel/password" class="link-muted">Пароль</a>
+    <form method="post" action="/panel/logout" class="inline">
+      <input type="hidden" name="_csrf" value="{{.CSRF}}">
+      <button class="btn-link">Выйти</button>
+    </form>
+  </div>
+</header>
+{{end}}
+<main class="{{if .User}}container{{else}}center{{end}}">
+  {{if .Flash}}<div class="alert ok" role="status">{{.Flash}}</div>{{end}}
+  {{if .Error}}<div class="alert err" role="alert">{{.Error}}</div>{{end}}
+  {{template "content" .}}
+</main>
+<div id="lightbox" class="lightbox" hidden><img alt=""></div>
+</body>
+</html>{{end}}

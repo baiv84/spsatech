@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "862132104407",
+    "project_id": "spsatech-a4c34",
+    "storage_bucket": "spsatech-a4c34.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:862132104407:android:574fbc72d4c1919f819492",
+        "android_client_info": {
+          "package_name": "com.spsatech.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9GPOoI6I3-zQIvo2KbizlblY0-AocSgQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

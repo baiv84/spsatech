@@ -1,0 +1,79 @@
+{{define "content"}}
+{{$d := .Data}}
+<div class="page-head">
+  <h1>Сотрудники</h1>
+  <form method="get" action="/panel/users" class="search">
+    <input type="search" name="q" value="{{$d.Query}}" placeholder="Поиск: ФИО, логин, подразделение">
+    <button class="btn">Найти</button>
+  </form>
+  <a href="/panel/users/new" class="btn primary">+ Добавить</a>
+</div>
+
+{{if $d.SyncOn}}
+<div class="card sync">
+  <div class="sync-head">
+    <div>
+      <b>Синхронизация с «Оценкой эффективности НПР»</b>
+      <div class="muted small">Сотрудники с действующей должностью переносятся автоматически каждую ночь в 04:00.
+        Входят со своими логином и паролем от той системы.</div>
+    </div>
+    <form method="post" action="/panel/sync">
+      <input type="hidden" name="_csrf" value="{{.CSRF}}">
+      <button class="btn">Синхронизировать сейчас</button>
+    </form>
+  </div>
+  {{with $d.SyncReport}}{{template "syncReport" .}}{{else}}{{with $d.LastSync}}
+    {{if .OK}}
+      <p class="small muted">Последняя: {{fmtTime .FinishedAt}} — действующих {{.Report.Eligible}},
+        создано {{.Report.Created}}, обновлено {{.Report.Updated}}, заблокировано {{.Report.Deactivated}}{{if .Report.Skipped}},
+        <b>пропущено {{len .Report.Skipped}}</b>{{end}}.</p>
+      {{if .Report.Skipped}}{{template "skipped" .Report.Skipped}}{{end}}
+    {{else}}
+      <p class="alert err small">Последняя попытка {{fmtTime .FinishedAt}} не удалась: {{.Error}}</p>
+    {{end}}
+  {{else}}<p class="small muted">Синхронизация ещё не выполнялась.</p>{{end}}{{end}}
+</div>
+{{end}}
+{{if $d.Users}}
+<table class="list">
+  <thead><tr><th>ФИО</th><th>Логин</th><th>Должность, подразделение</th><th>Телефон</th><th>Роль</th><th></th></tr></thead>
+  <tbody>
+  {{range $d.Users}}
+  <tr class="rowlink{{if not .IsActive}} inactive{{end}}" data-href="/panel/users/{{.ID}}">
+    <td><a href="/panel/users/{{.ID}}" class="title">{{.FullName}}</a>{{if .ExternalSource}} <span class="tag" title="Из «Оценки эффективности»">ОЭ</span>{{end}}</td>
+    <td class="mono">{{.Login}}</td>
+    <td>{{if .Position}}{{.Position}}{{end}}{{if .Department}}<div class="muted small">{{.Department}}</div>{{end}}</td>
+    <td class="nowrap">{{.Phone}}</td>
+    <td>{{roleLabel .Role}}</td>
+    <td>{{if not .IsActive}}<span class="status s-closed">Заблокирован</span>{{else if .MustChangePassword}}<span class="muted small">временный пароль</span>{{end}}</td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}
+<div class="empty">Никого не найдено</div>
+{{end}}
+{{end}}
+
+{{define "syncReport"}}
+<dl class="sync-stats">
+  <div><dt>В effcon</dt><dd>{{.SourceTotal}}</dd></div>
+  <div><dt>Действующих</dt><dd>{{.Eligible}}</dd></div>
+  <div><dt>Создано</dt><dd>{{.Created}}</dd></div>
+  <div><dt>Обновлено</dt><dd>{{.Updated}}</dd></div>
+  <div><dt>Без изменений</dt><dd>{{.Unchanged}}</dd></div>
+  <div><dt>Заблокировано</dt><dd>{{.Deactivated}}</dd></div>
+  <div><dt>Без должности</dt><dd>{{.NoPosition}}</dd></div>
+</dl>
+{{if .Skipped}}{{template "skipped" .Skipped}}{{end}}
+{{end}}
+
+{{define "skipped"}}
+<details class="skipped">
+  <summary>Пропущено: {{len .}}</summary>
+  <table class="list compact">
+    <thead><tr><th>Логин</th><th>ФИО</th><th>Причина</th></tr></thead>
+    <tbody>{{range .}}<tr><td class="mono">{{.Login}}</td><td>{{.Name}}</td><td>{{.Reason}}</td></tr>{{end}}</tbody>
+  </table>
+</details>
+{{end}}

@@ -1,0 +1,13 @@
+{{define "content"}}
+<form method="post" action="/panel/login" class="card login">
+  <div class="login-head">
+    <span class="brand-mark big">⛑</span>
+    <h1>Панель техподдержки</h1>
+    <p class="muted">Вход для сотрудников техподдержки</p>
+  </div>
+  <input type="hidden" name="next" value="{{.Data.Next}}">
+  <label>Логин<input name="login" value="{{.Data.Login}}" autocomplete="username" autofocus required></label>
+  <label>Пароль<input name="password" type="password" autocomplete="current-password" required></label>
+  <button class="btn primary wide">Войти</button>
+</form>
+{{end}}

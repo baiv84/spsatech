@@ -1,0 +1,61 @@
+{{define "content"}}
+{{$d := .Data}}{{$p := $d.Period}}
+<div class="page-head">
+  <h1>Отчёты</h1>
+  <a href="/panel/reports.csv?from={{$p.FromStr}}&to={{$p.ToStr}}" class="btn">⬇ Выгрузить в Excel</a>
+</div>
+
+<div class="filters">
+  {{range $d.Presets}}<a href="?preset={{.Key}}" class="chip{{if eq $p.Preset .Key}} active{{end}}">{{.Label}}</a>{{end}}
+  <form method="get" class="period">
+    <input type="date" name="from" value="{{$p.FromStr}}" aria-label="С">
+    <span class="muted">—</span>
+    <input type="date" name="to" value="{{$p.ToStr}}" aria-label="По">
+    <button class="btn">Показать</button>
+  </form>
+</div>
+<p class="muted small">Период: {{$p.Label}}. «Поступило» считается по дате создания заявки, «Решено» — по дате, когда её отметили решённой или закрыли.</p>
+
+<div class="kpis">
+  <div class="kpi"><div class="kpi-label">Поступило</div><div class="kpi-value">{{$d.Summary.Created}}</div></div>
+  <div class="kpi"><div class="kpi-label">Решено</div><div class="kpi-value">{{$d.Summary.Resolved}}</div></div>
+  <div class="kpi"><div class="kpi-label">Из поступивших ещё открыто</div><div class="kpi-value">{{$d.Summary.StillOpen}}</div></div>
+  <div class="kpi"><div class="kpi-label">Первый ответ, медиана</div><div class="kpi-value">{{hours $d.Summary.MedianResponse}}</div></div>
+  <div class="kpi"><div class="kpi-label">Решение, медиана</div><div class="kpi-value">{{hours $d.Summary.MedianResolve}}</div></div>
+  <div class="kpi muted-kpi"><div class="kpi-label">Открыто сейчас (всего)</div><div class="kpi-value">{{$d.Summary.OpenNow}}</div></div>
+</div>
+
+<h2>По подразделениям</h2>
+{{if $d.Departments}}
+<table class="list">
+  <thead><tr><th>Подразделение</th><th class="r">Поступило</th><th class="r">Решено</th><th class="r">Ещё открыто</th><th class="r">Решение, медиана</th><th class="bars-col"></th></tr></thead>
+  <tbody>
+  {{range $d.Departments}}
+  <tr>
+    <td>{{.Name}}</td>
+    <td class="r num">{{.Created}}</td>
+    <td class="r num">{{.Resolved}}</td>
+    <td class="r num">{{if .StillOpen}}{{.StillOpen}}{{else}}<span class="muted">0</span>{{end}}</td>
+    <td class="r nowrap">{{hours .MedianResolve}}</td>
+    <td class="bars-col"><svg class="bars" viewBox="0 0 100 17" preserveAspectRatio="none" aria-hidden="true">
+      <rect class="in" x="0" y="0" height="7" rx="3" width="{{pct .Created $d.MaxDeptCount}}"/>
+      <rect class="out" x="0" y="10" height="7" rx="3" width="{{pct .Resolved $d.MaxDeptCount}}"/></svg></td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+<p class="legend small muted"><span class="sw in"></span> поступило <span class="sw out"></span> решено</p>
+{{else}}<div class="empty">За этот период заявок нет</div>{{end}}
+
+<h2>По исполнителям</h2>
+{{if $d.Assignees}}
+<table class="list">
+  <thead><tr><th>Исполнитель</th><th class="r">Решено за период</th><th class="r">В работе сейчас</th><th class="r">Решение, медиана</th></tr></thead>
+  <tbody>
+  {{range $d.Assignees}}
+  <tr><td>{{.Name}}</td><td class="r num">{{.Resolved}}</td><td class="r num">{{.InWork}}</td><td class="r nowrap">{{hours .MedianResolve}}</td></tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}<div class="empty">Нет данных</div>{{end}}
+{{end}}
